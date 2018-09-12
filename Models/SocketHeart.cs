@@ -34,7 +34,7 @@ namespace DiscordWebSocket.Models
             DoHeartbeat = true;
             HeartStarted();
 
-            new Thread( () =>
+            new Thread(async () =>
             {
                 while (DoHeartbeat)
                 {
@@ -42,7 +42,7 @@ namespace DiscordWebSocket.Models
                     {
                         Thread.Sleep(HeartbeatInterval);
 
-                        bool acknowledged = Beat();
+                        bool acknowledged = await Beat();
                         HeartbeatSent(acknowledged);
                     }
                 }
@@ -52,9 +52,9 @@ namespace DiscordWebSocket.Models
         {
             DoHeartbeat = false;
         }
-        public bool Beat()
+        public async Task<bool> Beat()
         {
-            Payload response = SocketController.Send(new Heartbeat());
+            Payload response = await SocketController.Send(new Heartbeat());
             return response.Opcode == (int)Opcodes.HeartbeatACK;
         }
     }

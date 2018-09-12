@@ -59,22 +59,22 @@ namespace DiscordWebSocket.Controllers
 
             return WebSocket.State == WebSocketState.Open;
         }
-        public static Payload Send(Payload payload)
+        public static async Task<Payload> Send(Payload payload)
         {
             string json = Serialize(payload);
             byte[] buffer = Encoding.UTF8.GetBytes(json);
 
-            WebSocket.SendAsync(new ArraySegment<byte>(buffer),
+            await WebSocket.SendAsync(new ArraySegment<byte>(buffer),
                 WebSocketMessageType.Text,
                 true,
                 new CancellationToken());
 
-            return Receive();
+            return await Receive();
         }
-        public static Payload Receive()
+        public static async Task<Payload> Receive()
         {
             byte[] buffer = new byte[4096];
-            WebSocket.ReceiveAsync(new ArraySegment<byte>(buffer), 
+            await WebSocket.ReceiveAsync(new ArraySegment<byte>(buffer), 
                 new CancellationToken());
             
             int lastIndex = buffer.ToList().FindLastIndex(b => b != 0);

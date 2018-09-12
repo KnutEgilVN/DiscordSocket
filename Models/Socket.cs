@@ -36,12 +36,12 @@ namespace DiscordWebSocket.Models
             SocketListener = new SocketListener();
             SocketHeart = new SocketHeart();
 
-            SocketListener.PayloadReceived += (p) =>
+            SocketListener.PayloadReceived += async (p) =>
             {
                 switch ((Opcodes)p.Opcode)
                 {
                     case Opcodes.Heartbeat:
-                        SocketHeart.Beat();
+                        await SocketHeart.Beat();
                         break;
 
                     case Opcodes.Hello:
@@ -78,7 +78,7 @@ namespace DiscordWebSocket.Models
             SocketListener.Listen();
             return connected;
         }
-        public void DoIdentify(string token, ConnectionProperties properties, bool compress = false, int large_threshold = 50, int[] shard = null, object presence = null)
+        public async void DoIdentify(string token, ConnectionProperties properties, bool compress = false, int large_threshold = 50, int[] shard = null, object presence = null)
         {
             Identify identify = new Identify()
             {
@@ -90,17 +90,17 @@ namespace DiscordWebSocket.Models
                 Presence = presence
             };
             Payload payload = new Payload(Opcodes.Identify, identify);
-            Payload response =  Send(payload);
-            Console.WriteLine(response?.Data);
+            Payload response = await Send(payload);
+            Console.WriteLine(response.Data);
             //TODO: HANDLE READY-EVENT RESPONSE
         }
-        public Payload Send(Payload payload)
+        public async Task<Payload> Send(Payload payload)
         {
-            return SocketController.Send(payload);
+            return await SocketController.Send(payload);
         }
-        public Payload Receive()
+        public async Task<Payload> Receive()
         {
-            return SocketController.Receive();
+            return await SocketController.Receive();
         }
      }
 }
