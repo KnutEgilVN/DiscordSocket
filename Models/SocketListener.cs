@@ -3,6 +3,7 @@ using DiscordWebSocket.Payloads;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,15 +26,22 @@ namespace DiscordWebSocket.Models
         {
             IsListening = true;
 
-            new Thread(async () =>
+            new Thread( () =>
             {
                 while (IsListening)
                 {
                     if (SocketController.IsConnected)
                     {
-                        Payload payload = await SocketController.Receive();
-                        if (payload != null)
-                            PayloadReceived(payload);
+                        try
+                        {
+                            Payload payload = SocketController.Receive();
+                            if (payload != null)
+                                PayloadReceived(payload);
+                        }
+                        catch(WebSocketException ex)
+                        {
+                            Console.WriteLine(ex);
+                        }
                     }
                 }
             }).Start();
